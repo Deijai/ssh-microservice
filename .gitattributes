@@ -1,0 +1,325 @@
+# ==============================================================================
+# 🔧 SSH MICROSERVICE - GITATTRIBUTES
+# Configurações Git para diferentes tipos de arquivos
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 🌍 GLOBAL SETTINGS
+# ------------------------------------------------------------------------------
+# Auto normalize line endings for all text files
+* text=auto
+
+# Ensure all text files have LF line endings in the repository
+* text eol=lf
+
+# ------------------------------------------------------------------------------
+# 📝 SOURCE CODE
+# ------------------------------------------------------------------------------
+# TypeScript files
+*.ts text eol=lf
+*.tsx text eol=lf
+*.d.ts text eol=lf
+
+# JavaScript files
+*.js text eol=lf
+*.jsx text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+
+# JSON files
+*.json text eol=lf
+*.jsonc text eol=lf
+*.json5 text eol=lf
+
+# Configuration files
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+*.conf text eol=lf
+*.config text eol=lf
+
+# Package files
+package.json text eol=lf
+package-lock.json text eol=lf
+yarn.lock text eol=lf
+pnpm-lock.yaml text eol=lf
+
+# TypeScript configuration
+tsconfig.json text eol=lf
+tsconfig.*.json text eol=lf
+tslint.json text eol=lf
+
+# ESLint & Prettier
+.eslintrc text eol=lf
+.eslintrc.* text eol=lf
+.prettierrc text eol=lf
+.prettierrc.* text eol=lf
+
+# ------------------------------------------------------------------------------
+# 🌐 WEB FILES
+# ------------------------------------------------------------------------------
+# HTML files
+*.html text eol=lf
+*.htm text eol=lf
+
+# CSS files
+*.css text eol=lf
+*.scss text eol=lf
+*.sass text eol=lf
+*.less text eol=lf
+*.styl text eol=lf
+
+# Web assets
+*.svg text eol=lf
+*.xml text eol=lf
+
+# ------------------------------------------------------------------------------
+# 📚 DOCUMENTATION
+# ------------------------------------------------------------------------------
+# Markdown files
+*.md text eol=lf
+*.markdown text eol=lf
+*.mdown text eol=lf
+*.mkd text eol=lf
+
+# Text files
+*.txt text eol=lf
+*.text text eol=lf
+
+# License files
+LICENSE text eol=lf
+LICENCE text eol=lf
+*.license text eol=lf
+
+# Readme files
+README text eol=lf
+README.* text eol=lf
+
+# Changelog files
+CHANGELOG text eol=lf
+CHANGELOG.* text eol=lf
+HISTORY text eol=lf
+HISTORY.* text eol=lf
+
+# ------------------------------------------------------------------------------
+# 🐳 CONTAINERIZATION
+# ------------------------------------------------------------------------------
+# Docker files
+Dockerfile text eol=lf
+Dockerfile.* text eol=lf
+*.dockerfile text eol=lf
+.dockerignore text eol=lf
+docker-compose.yml text eol=lf
+docker-compose.*.yml text eol=lf
+
+# ------------------------------------------------------------------------------
+# 🔧 BUILD & DEPLOYMENT
+# ------------------------------------------------------------------------------
+# Shell scripts
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+*.fish text eol=lf
+
+# Batch files (Windows)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# PowerShell
+*.ps1 text eol=lf
+*.psm1 text eol=lf
+
+# Makefile
+Makefile text eol=lf
+makefile text eol=lf
+*.mk text eol=lf
+
+# GitHub files
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.github/**/* text eol=lf
+
+# CI/CD files
+*.yml text eol=lf
+*.yaml text eol=lf
+.travis.yml text eol=lf
+appveyor.yml text eol=lf
+.gitlab-ci.yml text eol=lf
+
+# ------------------------------------------------------------------------------
+# 🔒 SECURITY & CERTIFICATES
+# ------------------------------------------------------------------------------
+# Certificate files (binary)
+*.crt binary
+*.cer binary
+*.der binary
+*.p12 binary
+*.pfx binary
+
+# Key files (binary for security)
+*.key binary
+*.pem binary
+
+# ------------------------------------------------------------------------------
+# 🗄️ DATA FILES
+# ------------------------------------------------------------------------------
+# CSV files
+*.csv text eol=lf
+
+# SQL files
+*.sql text eol=lf
+
+# Log files
+*.log text eol=lf
+
+# ------------------------------------------------------------------------------
+# 📦 BINARY FILES
+# ------------------------------------------------------------------------------
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.bmp binary
+*.tiff binary
+*.tif binary
+*.webp binary
+*.svg text eol=lf
+
+# Videos
+*.mp4 binary
+*.avi binary
+*.mov binary
+*.wmv binary
+*.flv binary
+*.webm binary
+
+# Audio
+*.mp3 binary
+*.wav binary
+*.flac binary
+*.aac binary
+*.ogg binary
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.bz2 binary
+*.7z binary
+*.rar binary
+
+# Documents
+*.pdf binary
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+
+# Fonts
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+
+# ------------------------------------------------------------------------------
+# 🚫 FILES TO EXCLUDE FROM LANGUAGE DETECTION
+# ------------------------------------------------------------------------------
+# Generated files
+dist/ linguist-generated=true
+build/ linguist-generated=true
+coverage/ linguist-generated=true
+node_modules/ linguist-vendored=true
+
+# Documentation
+*.md linguist-documentation=true
+docs/ linguist-documentation=true
+
+# Configuration files
+*.json linguist-language=JSON
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML
+
+# ------------------------------------------------------------------------------
+# 🔍 DIFF SETTINGS
+# ------------------------------------------------------------------------------
+# Package lock files (don't show diffs)
+package-lock.json -diff
+yarn.lock -diff
+pnpm-lock.yaml -diff
+
+# Large JSON files
+*.json diff=json
+
+# SQL files
+*.sql diff=sql
+
+# ------------------------------------------------------------------------------
+# 🎯 MERGE SETTINGS
+# ------------------------------------------------------------------------------
+# Binary files should not be merged
+*.pdf -merge
+*.zip -merge
+*.tar -merge
+*.gz -merge
+*.exe -merge
+*.dll -merge
+
+# Package lock files
+package-lock.json merge=ours
+yarn.lock merge=ours
+
+# ------------------------------------------------------------------------------
+# 📊 STATISTICS SETTINGS
+# ------------------------------------------------------------------------------
+# Exclude from language statistics
+# Vendor/third-party code
+vendor/ linguist-vendored=true
+third-party/ linguist-vendored=true
+libs/ linguist-vendored=true
+
+# Generated code
+generated/ linguist-generated=true
+auto-generated/ linguist-generated=true
+
+# Test files
+test/ linguist-language=TypeScript
+tests/ linguist-language=TypeScript
+spec/ linguist-language=TypeScript
+__tests__/ linguist-language=TypeScript
+*.test.ts linguist-language=TypeScript
+*.test.js linguist-language=JavaScript
+*.spec.ts linguist-language=TypeScript
+*.spec.js linguist-language=JavaScript
+
+# Configuration overrides
+*.config.js linguist-language=JavaScript
+*.config.ts linguist-language=TypeScript
+
+# ------------------------------------------------------------------------------
+# 🔄 FILTER SETTINGS
+# ------------------------------------------------------------------------------
+# Large files that should use Git LFS
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.tar filter=lfs diff=lfs merge=lfs -text
+*.gz filter=lfs diff=lfs merge=lfs -text
+*.7z filter=lfs diff=lfs merge=lfs -text
+*.rar filter=lfs diff=lfs merge=lfs -text
+
+# Database dumps
+*.sql.gz filter=lfs diff=lfs merge=lfs -text
+*.dump filter=lfs diff=lfs merge=lfs -text
+
+# Video files
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.avi filter=lfs diff=lfs merge=lfs -text
+*.mov filter=lfs diff=lfs merge=lfs -text
+
+# Large images
+*.psd filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,206 @@
+# ==============================================================================
+# 🔒 SSH MICROSERVICE - GITIGNORE
+# Arquivos e diretórios que não devem ser versionados
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 🌍 ENVIRONMENT & SECRETS
+# ------------------------------------------------------------------------------
+# Environment files with secrets
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+.env.test
+
+# Firebase service account keys
+**/firebase-service-account*.json
+firebase-adminsdk-*.json
+service-account-key.json
+
+# SSL/TLS certificates and keys
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+ssl/
+certs/
+keys/
+
+# SSH keys
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+*.pem
+authorized_keys
+known_hosts
+
+# API keys and secrets
+api-keys.txt
+secrets.txt
+passwords.txt
+
+# ------------------------------------------------------------------------------
+# 📦 NODE.JS
+# ------------------------------------------------------------------------------
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# Snowpack dependency directory (https://snowpack.dev/)
+web_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# ------------------------------------------------------------------------------
+# 🏗️ BUILD OUTPUT
+# ------------------------------------------------------------------------------
+# Compiled JavaScript
+dist/
+build/
+out/
+lib/
+es/
+umd/
+
+# TypeScript compiled output
+*.js
+*.js.map
+*.d.ts
+!jest.config.js
+!webpack.config.js
+!babel.config.js
+
+# Webpack bundles
+bundles/
+webpack-stats.json
+
+# Rollup bundles
+rollup-stats.json
+
+# Babel cache
+.babel-cache/
+
+# SWC cache
+.swc/
+
+# ------------------------------------------------------------------------------
+# 📝 LOGS
+# ------------------------------------------------------------------------------
+# Log files
+logs/
+*.log
+log.txt
+
+# Combined logs
+combined.log
+error.log
+access.log
+debug.log
+
+# Winston logs

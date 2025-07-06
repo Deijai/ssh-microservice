@@ -1,0 +1,325 @@
+# ==============================================================================
+# 🐳 SSH Microservice Docker Compose
+# Complete development and production environment setup
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ------------------------------------------------------------------------------
+  # SSH Microservice Application
+  # ------------------------------------------------------------------------------
+  ssh-microservice:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: ssh-microservice-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+      - "${METRICS_PORT:-9090}:9090"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=3000
+      - HOST=0.0.0.0
+      
+      # Security
+      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - API_KEY=${API_KEY}
+      - BCRYPT_SALT_ROUNDS=${BCRYPT_SALT_ROUNDS:-12}
+      
+      # Firebase
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_PRIVATE_KEY_ID=${FIREBASE_PRIVATE_KEY_ID}
+      - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
+      - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
+      - FIREBASE_CLIENT_ID=${FIREBASE_CLIENT_ID}
+      - FIREBASE_AUTH_URI=${FIREBASE_AUTH_URI}
+      - FIREBASE_TOKEN_URI=${FIREBASE_TOKEN_URI}
+      - FIREBASE_AUTH_PROVIDER_X509_CERT_URL=${FIREBASE_AUTH_PROVIDER_X509_CERT_URL}
+      - FIREBASE_CLIENT_X509_CERT_URL=${FIREBASE_CLIENT_X509_CERT_URL}
+      
+      # SSH Configuration
+      - SSH_CONNECTION_TIMEOUT=${SSH_CONNECTION_TIMEOUT:-10000}
+      - SSH_COMMAND_TIMEOUT=${SSH_COMMAND_TIMEOUT:-30000}
+      - SSH_KEEPALIVE_INTERVAL=${SSH_KEEPALIVE_INTERVAL:-1000}
+      - MAX_CONCURRENT_CONNECTIONS=${MAX_CONCURRENT_CONNECTIONS:-10}
+      - SSH_DEBUG_LEVEL=${SSH_DEBUG_LEVEL:-0}
+      
+      # Rate Limiting
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+      - RATE_LIMIT_SKIP_SUCCESSFUL_REQUESTS=${RATE_LIMIT_SKIP_SUCCESSFUL_REQUESTS:-false}
+      
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FILE=/app/logs/ssh-microservice.log
+      - LOG_MAX_SIZE=${LOG_MAX_SIZE:-10m}
+      - LOG_MAX_FILES=${LOG_MAX_FILES:-5}
+      - ENABLE_REQUEST_LOGGING=${ENABLE_REQUEST_LOGGING:-true}
+      
+      # CORS
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8081,exp://192.168.1.100:8081,http://localhost:3000}
+      
+      # Cache
+      - CACHE_TTL=${CACHE_TTL:-300}
+      - CACHE_CHECK_PERIOD=${CACHE_CHECK_PERIOD:-600}
+      - MAX_CACHE_KEYS=${MAX_CACHE_KEYS:-1000}
+      
+      # Monitoring
+      - HEALTH_CHECK_INTERVAL=${HEALTH_CHECK_INTERVAL:-30000}
+      - ENABLE_METRICS=${ENABLE_METRICS:-true}
+      - METRICS_PORT=9090
+      
+    volumes:
+      - ssh-logs:/app/logs
+      - ssh-cache:/app/cache
+    networks:
+      - ssh-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ssh-microservice.rule=Host(`ssh-api.localhost`)"
+      - "traefik.http.services.ssh-microservice.loadbalancer.server.port=3000"
+    depends_on:
+      - redis
+      - prometheus
+
+  # ------------------------------------------------------------------------------
+  # Development Service
+  # ------------------------------------------------------------------------------
+  ssh-microservice-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: ssh-microservice-dev
+    ports:
+      - "3001:3000"
+      - "9229:9229"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - HOST=0.0.0.0
+      - LOG_LEVEL=debug
+      - JWT_SECRET=${JWT_SECRET:-dev-jwt-secret-key-for-development-only}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-dev-encryption-key-32-chars-long}
+      - API_KEY=${API_KEY:-dev-api-key-for-development}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ssh-logs-dev:/app/logs
+    networks:
+      - ssh-network
+    profiles:
+      - development
+
+  # ------------------------------------------------------------------------------
+  # Redis Cache
+  # ------------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: ssh-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis-password}
+    volumes:
+      - redis-data:/data
+    networks:
+      - ssh-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ------------------------------------------------------------------------------
+  # Prometheus Monitoring
+  # ------------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ssh-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - ssh-network
+    profiles:
+      - monitoring
+
+  # ------------------------------------------------------------------------------
+  # Grafana Dashboard
+  # ------------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ssh-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - ssh-network
+    profiles:
+      - monitoring
+    depends_on:
+      - prometheus
+
+  # ------------------------------------------------------------------------------
+  # Log Aggregation with ELK Stack
+  # ------------------------------------------------------------------------------
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    container_name: ssh-elasticsearch
+    restart: unless-stopped
+    environment:
+      - cluster.name=ssh-microservice-logs
+      - node.name=ssh-elasticsearch
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - ssh-network
+    profiles:
+      - logging
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.10.0
+    container_name: ssh-logstash
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/logstash/config:/usr/share/logstash/config
+      - ssh-logs:/app/logs:ro
+    ports:
+      - "5000:5000"
+    networks:
+      - ssh-network
+    profiles:
+      - logging
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.10.0
+    container_name: ssh-kibana
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - ssh-network
+    profiles:
+      - logging
+    depends_on:
+      - elasticsearch
+
+  # ------------------------------------------------------------------------------
+  # Nginx Reverse Proxy
+  # ------------------------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: ssh-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    networks:
+      - ssh-network
+    profiles:
+      - production
+    depends_on:
+      - ssh-microservice
+
+  # ------------------------------------------------------------------------------
+  # Test SSH Server (for testing purposes)
+  # ------------------------------------------------------------------------------
+  test-ssh-server:
+    image: linuxserver/openssh-server:latest
+    container_name: test-ssh-server
+    restart: unless-stopped
+    ports:
+      - "2222:2222"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - PASSWORD_ACCESS=true
+      - USER_PASSWORD=${TEST_SSH_PASSWORD:-testpassword}
+      - USER_NAME=${TEST_SSH_USER:-testuser}
+    volumes:
+      - test-ssh-data:/config
+    networks:
+      - ssh-network
+    profiles:
+      - testing
+
+# ==============================================================================
+# Networks
+# ==============================================================================
+networks:
+  ssh-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# ==============================================================================
+# Volumes
+# ==============================================================================
+volumes:
+  # Application volumes
+  ssh-logs:
+    driver: local
+  ssh-logs-dev:
+    driver: local
+  ssh-cache:
+    driver: local
+  
+  # Database volumes
+  redis-data:
+    driver: local
+  
+  # Monitoring volumes
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  
+  # Logging volumes
+  elasticsearch-data:
+    driver: local
+  
+  # Test volumes
+  test-ssh-data:
+    driver: local
